@@ -1,0 +1,19 @@
+name: 'AutoOAS diff'
+description: 'Runs OpenAPI-diff on multiple profile specifications'
+inputs:
+  profiles:
+    default: 'default'
+  old_dir:
+    required: true
+  new_dir:
+    required: true
+
+runs:
+  using: 'openapitools/openapi-diff'
+  steps:
+    - name: 'Parse input'
+      run: IFS=',' read -r -a PROFILES <<< "${{inputs.profiles}}"
+      shell: bash
+    - name: 'Check files for availability'
+      run: for f in ${PROFILES[@]}; do [ -f "${{inputs.old_dir}}/oas_$f.json" -o -f "${{inputs.new_dir}}/oas_$f.json" ] && : || ( echo "Cannot find any specification of profile $f"; exit 1 ); done
+      shell: bash
