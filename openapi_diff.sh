@@ -1,8 +1,4 @@
 #!/bin/bash
 
-IFS=',' read -r -a PROFILES <<< "$1"
-NEW_DIR=$2
-OLD_DIR=$3
-OUTPUT="["
-
-
+docker run --rm -t \
+  openapitools/openapi-diff:latest --help
