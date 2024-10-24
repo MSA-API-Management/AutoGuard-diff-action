@@ -20,5 +20,6 @@ runs:
       env:
         - OLD_DIR: ${{inputs.old_dir}}
         - NEW_DIR: ${{inputs.new_dir}}
-    - run: docker run openapitools/openapi-diff:latest 
+    - name: 'Run OpenAPI-diff'
+      run: docker run openapitools/openapi-diff:latest 
       shell: bash
