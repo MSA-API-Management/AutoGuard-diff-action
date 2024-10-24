@@ -12,5 +12,18 @@ runs:
   using: 'composite'
   steps:
     - name: 'Run OpenAPI-diff'
-      run: docker run --rm -t openapitools/openapi-diff:latest --help
+      run: |
+        OLD_DIR=$INPUTS_old_dir
+        NEW_DIR=$INPUTS_new_dir
+        
+        OLD_FILES=$(find "$OLD_DIR" -type f | sed "s|$OLD_DIR/||" | sort)
+        NEW_FILES=$(find "$NEW_DIR" -type f | sed "s|$NEW_DIR/||" | sort)
+        
+        COMMON_FILES=$(comm -12 <(echo "$OLD_FILES") <(echo "$NEW_FILES"))
+        
+        for p in ${COMMON_FILES[@]}; do
+            docker run --rm -t \
+                -v $(pwd):/specs \
+                openapitools/openapi-diff:latest --markdown "$p.md" /specs/$OLD_DIR/$p /specs/$NEW_DIR/$p
+        done
       shell: bash
