@@ -13,5 +13,5 @@ runs:
   steps:
     
     - name: 'Run OpenAPI-diff'
-      run: ./openapi_diff.sh
+      run: openapi_diff.sh
       shell: bash
