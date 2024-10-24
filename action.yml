@@ -11,15 +11,7 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: 'Parse input'
-      run: IFS=',' read -r -a PROFILES <<< "${{inputs.profiles}}"
-      shell: bash
-    - name: 'Check files for availability'
-      run: for f in ${PROFILES[@]}; do [ -f "$OLD_DIR/oas_$f.json" -o -f "$NEW_DIR/oas_$f.json" ] && : || ( echo "Cannot find any specification of profile $f"; exit 1 ); done
-      shell: bash
-      env:
-        - OLD_DIR: ${{inputs.old_dir}}
-        - NEW_DIR: ${{inputs.new_dir}}
+    
     - name: 'Run OpenAPI-diff'
-      run: docker run openapitools/openapi-diff:latest 
+      run: openapi_diff.sh
       shell: bash
