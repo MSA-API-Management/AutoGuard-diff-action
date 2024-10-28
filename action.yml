@@ -72,7 +72,7 @@ runs:
     - name: 'Check breaking info'
       shell: bash
       run: |
-        if [ "$BREAKING_CHANGES" -ge 1 ]; then 
+        if [ "$BREAKING_CHANGES" -gt 0 ]; then 
           echo "::error::Breaking changes detected"
           exit 1
         fi
