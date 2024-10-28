@@ -28,6 +28,7 @@ runs:
         
         if [ $STATUS -ge 1 ]; then
             echo "Breaking changes"
+            export BREAKING_CHANGES=true
             exit 1
         fi
         
@@ -35,3 +36,9 @@ runs:
       env:
         OLD_DIR: ${{inputs.old_dir}}
         NEW_DIR: ${{inputs.new_dir}}
+    - name: 'Check status'
+        if: ${{ BREAKING_CHANGES }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+              core.setFailed('Breaking changes found in OpenAPI specification')
