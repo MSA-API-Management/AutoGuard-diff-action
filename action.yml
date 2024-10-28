@@ -13,6 +13,8 @@ runs:
   steps:
     - name: 'Run OpenAPI-diff'
       run: |
+        set +e
+        
         EMPTY_OAS='{  "openapi" : "3.0.1",  "info" : {    "title" : "",    "description" : "Spring Profile: ???",    "version" : ""  },  "paths" : {  },  "components" : {    "schemas" : {    }  }}'
 
         echo $EMPTY_OAS > empty.json
