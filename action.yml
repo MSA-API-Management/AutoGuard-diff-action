@@ -14,7 +14,7 @@ runs:
     - name: 'Run OpenAPI-diff'
       run: |
         EMPTY_OAS='{  "openapi" : "3.0.1",  "info" : {    "title" : "",    "description" : "Spring Profile: ???",    "version" : ""  },  "paths" : {  },  "components" : {    "schemas" : {    }  }}'
-        
+
         echo $EMPTY_OAS > empty.json
         
         OLD_FILES=$(find "$OLD_DIR" -type f | sed "s|$OLD_DIR/||" | sort)
@@ -26,28 +26,30 @@ runs:
         
         STATUS=0
         
+        mkdir oas_diff
+        
+        echo "Analyzing existing configurations"
         for p in ${COMMON_FILES[@]}; do
-            echo "diff common"
             docker run --rm -t \
                 -v $(pwd):/specs \
-                openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/$p.html" /specs/$OLD_DIR/$p /specs/$NEW_DIR/$p > /dev/null
+                openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/oas_diff/$p.html" /specs/$OLD_DIR/$p /specs/$NEW_DIR/$p > /dev/null
             EXIT_CODE=$?
             STATUS=$((STATUS + EXIT_CODE))
         done
         
         for p in ${OTHER_FILES[@]}; do
             if [ -f "$OLD_DIR/$p" ]; then
-                echo "diff del"
+                echo "Analyzing deleted configurations"
                 docker run --rm -t \
                     -v $(pwd):/specs \
-                    openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/$p.html" /specs/$OLD_DIR/$p /specs/empty.json > /dev/null
+                    openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/oas_diff/$p.html" /specs/$OLD_DIR/$p /specs/empty.json > /dev/null
                 EXIT_CODE=$?
                 STATUS=$((STATUS + EXIT_CODE))
             else
-                echo "diff add"
+                echo "Analyzing added configurations"
                 docker run --rm -t \
                     -v $(pwd):/specs \
-                    openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/$p.html" /specs/empty.json /specs/$NEW_DIR/$p > /dev/null
+                    openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/oas_diff/$p.html" /specs/empty.json /specs/$NEW_DIR/$p > /dev/null
                 EXIT_CODE=$?
                 STATUS=$((STATUS + EXIT_CODE))
             fi
