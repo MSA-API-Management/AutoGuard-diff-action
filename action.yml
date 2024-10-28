@@ -36,7 +36,7 @@ runs:
         NEW_DIR: ${{inputs.new_dir}}
     
     - name: 'Upload specifications'
-    uses: actions/upload-artifact@v4
-    with:
-      name: 'OpenAPI differences'
-      path: oas_diff/*.html
+      uses: actions/upload-artifact@v4
+      with:
+        name: 'OpenAPI differences'
+        path: oas_diff/*.html
