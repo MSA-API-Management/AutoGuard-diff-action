@@ -60,7 +60,7 @@ runs:
         set -e 
         
         if [ $STATUS -ge 1 ]; then 
-            echo "Incompatible changes detected"
+            echo "::error::Breaking changes detected"
             exit 1
         fi
       shell: bash
