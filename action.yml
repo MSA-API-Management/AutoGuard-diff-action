@@ -58,6 +58,8 @@ runs:
         done
         
         set -e
+
+        export BREAKING_CHANGES="$STATUS"
       shell: bash
       env:
         OLD_DIR: ${{inputs.old_dir}}
@@ -70,7 +72,7 @@ runs:
     - name: 'Check breaking info'
       shell: bash
       run: |
-        if [ $STATUS -ge 1 ]; then 
+        if [ "$BREAKING_CHANGES" -ge 1 ]; then 
           echo "::error::Breaking changes detected"
           exit 1
         fi
