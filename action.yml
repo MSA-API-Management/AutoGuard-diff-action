@@ -21,24 +21,22 @@ runs:
         for p in ${COMMON_FILES[@]}; do
             docker run --rm -t \
                 -v $(pwd):/specs \
-                openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/$p.html" /specs/$OLD_DIR/$p /specs/$NEW_DIR/$p > /dev/null
+                openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/$p.html" /specs/$OLD_DIR/oas_diff/$p /specs/$NEW_DIR/oas_diff/$p > /dev/null
             EXIT_CODE=$?
             STATUS=$((STATUS + EXIT_CODE))
         done
         
         if [ $STATUS -ge 1 ]; then
-            echo "Breaking changes"
-            export BREAKING_CHANGES=true
+            echo "::error title={Breaking changes}::{There are breaking changes in the OAS specifications}"
             exit 1
         fi
-        
       shell: bash
       env:
         OLD_DIR: ${{inputs.old_dir}}
         NEW_DIR: ${{inputs.new_dir}}
-    - name: 'Check status'
-        if: ${{ BREAKING_CHANGES }}
-        uses: actions/github-script@v7
-        with:
-          script: |
-              core.setFailed('Breaking changes found in OpenAPI specification')
+    
+    - name: 'Upload specifications'
+    uses: actions/upload-artifact@v4
+    with:
+      name: 'OpenAPI differences'
+      path: oas_diff/*.html
