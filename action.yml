@@ -19,9 +19,11 @@ runs:
         COMMON_FILES=$(comm -12 <(echo "$OLD_FILES") <(echo "$NEW_FILES"))
         
         for p in ${COMMON_FILES[@]}; do
-            docker run --rm -t \
+            STATUS=$(docker run --rm -t \
                 -v $(pwd):/specs \
-                openapitools/openapi-diff:latest --markdown "$p.md" /specs/$OLD_DIR/$p /specs/$NEW_DIR/$p
+                openapitools/openapi-diff:latest --state --markdown "/specs/$p.md" /specs/$OLD_DIR/$p /specs/$NEW_DIR/$p)
+            
+            [ "$STATUS" != "no_changes" ] && echo "Changes: $STATUS"
         done
         
       shell: bash
