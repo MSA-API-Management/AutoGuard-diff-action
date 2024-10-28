@@ -12,9 +12,10 @@ runs:
   using: 'composite'
   steps:
     - name: 'Run OpenAPI-diff'
+      id: 'diff_step'
       run: |
         set +e
-        
+
         EMPTY_OAS='{  "openapi" : "3.0.1",  "info" : {    "title" : "",    "description" : "Spring Profile: ???",    "version" : ""  },  "paths" : {  },  "components" : {    "schemas" : {    }  }}'
         
         echo $EMPTY_OAS > empty.json
@@ -58,8 +59,8 @@ runs:
         done
         
         set -e
-
-        export BREAKING_CHANGES="$STATUS"
+        
+        echo "status=$STATUS" >> "$GITHUB_OUTPUT"
       shell: bash
       env:
         OLD_DIR: ${{inputs.old_dir}}
@@ -72,7 +73,7 @@ runs:
     - name: 'Check breaking info'
       shell: bash
       run: |
-        if [ "$BREAKING_CHANGES" -gt 0 ]; then 
+        if [ "${{steps.diff_step.outputs.status}}" -gt 0 ]; then 
           echo "::error::Breaking changes detected"
           exit 1
         fi
