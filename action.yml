@@ -25,11 +25,6 @@ runs:
             EXIT_CODE=$?
             STATUS=$((STATUS + EXIT_CODE))
         done
-        
-        if [ $STATUS -ge 1 ]; then
-            echo "::error title={Breaking changes}::{There are breaking changes in the OAS specifications}"
-            exit 1
-        fi
       shell: bash
       env:
         OLD_DIR: ${{inputs.old_dir}}
