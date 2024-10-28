@@ -17,14 +17,19 @@ runs:
         NEW_FILES=$(find "$NEW_DIR" -type f | sed "s|$NEW_DIR/||" | sort)
         
         COMMON_FILES=$(comm -12 <(echo "$OLD_FILES") <(echo "$NEW_FILES"))
-        
+        STATUS=0
         for p in ${COMMON_FILES[@]}; do
-            STATUS=$(docker run --rm -t \
+            docker run --rm -t \
                 -v $(pwd):/specs \
-                openapitools/openapi-diff:latest --state --markdown "/specs/$p.md" /specs/$OLD_DIR/$p /specs/$NEW_DIR/$p)
-            
-            [ "$STATUS" != "no_changes" ] && echo "Changes: $STATUS"
+                openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/$p.html" /specs/$OLD_DIR/$p /specs/$NEW_DIR/$p > /dev/null
+            EXIT_CODE=$?
+            STATUS=$((STATUS + EXIT_CODE))
         done
+        
+        if [ $STATUS -ge 1 ]; then
+            echo "Breaking changes"
+            exit 1
+        fi
         
       shell: bash
       env:
