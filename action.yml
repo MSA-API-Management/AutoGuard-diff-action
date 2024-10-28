@@ -16,7 +16,7 @@ runs:
         set +e
         
         EMPTY_OAS='{  "openapi" : "3.0.1",  "info" : {    "title" : "",    "description" : "Spring Profile: ???",    "version" : ""  },  "paths" : {  },  "components" : {    "schemas" : {    }  }}'
-
+        
         echo $EMPTY_OAS > empty.json
         
         OLD_FILES=$(find "$OLD_DIR" -type f | sed "s|$OLD_DIR/||" | sort)
@@ -57,7 +57,12 @@ runs:
             fi
         done
         
-        echo $STATUS
+        set -e 
+        
+        if [ $STATUS -ge 1 ]; then 
+            echo "Incompatible changes detected"
+            exit 1
+        fi
       shell: bash
       env:
         OLD_DIR: ${{inputs.old_dir}}
