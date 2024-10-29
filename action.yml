@@ -11,6 +11,11 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - uses: actions/checkout@v4
+      with:
+        sparse-checkout: |
+          empty_oas.json
+        sparse-checkout-cone-mode: false
     - name: 'Run OpenAPI-diff'
       id: 'diff_step'
       run: |
