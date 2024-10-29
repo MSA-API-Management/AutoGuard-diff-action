@@ -30,7 +30,7 @@ runs:
         for p in ${COMMON_FILES[@]}; do
             docker run --rm -t \
                 -v $(pwd):/specs \
-                openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/oas_diff/$p.html" /specs/$OLD_DIR/$p /specs/$NEW_DIR/$p > /dev/null
+                openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/oas_diff/$p.html" /specs/$OLD_DIR/$p /specs/$NEW_DIR/$p
             EXIT_CODE=$?
             STATUS=$((STATUS + EXIT_CODE))
         done
@@ -40,14 +40,14 @@ runs:
                 echo "Analyzing deleted configurations"
                 docker run --rm -t \
                     -v $(pwd):/specs \
-                    openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/oas_diff/$p.html" /specs/$OLD_DIR/$p /specs/empty_oas.json > /dev/null
+                    openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/oas_diff/$p.html" /specs/$OLD_DIR/$p /specs/empty_oas.json
                 EXIT_CODE=$?
                 STATUS=$((STATUS + EXIT_CODE))
             else
                 echo "Analyzing added configurations"
                 docker run --rm -t \
                     -v $(pwd):/specs \
-                    openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/oas_diff/$p.html" /specs/empty_oas.json /specs/$NEW_DIR/$p > /dev/null
+                    openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/oas_diff/$p.html" /specs/empty_oas.json /specs/$NEW_DIR/$p
                 EXIT_CODE=$?
                 STATUS=$((STATUS + EXIT_CODE))
             fi
