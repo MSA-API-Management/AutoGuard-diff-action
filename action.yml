@@ -13,6 +13,7 @@ runs:
   steps:
     - uses: actions/checkout@v4
       with:
+        path: 'action_config'
         sparse-checkout: |
           empty_oas.json
         sparse-checkout-cone-mode: false
@@ -45,14 +46,14 @@ runs:
                 echo "Analyzing deleted configurations"
                 docker run --rm -t \
                     -v $(pwd):/specs \
-                    openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/oas_diff/$p.html" /specs/$OLD_DIR/$p /specs/empty_oas.json
+                    openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/oas_diff/$p.html" /specs/$OLD_DIR/$p /specs/action_config/empty_oas.json
                 EXIT_CODE=$?
                 STATUS=$((STATUS + EXIT_CODE))
             else
                 echo "Analyzing added configurations"
                 docker run --rm -t \
                     -v $(pwd):/specs \
-                    openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/oas_diff/$p.html" /specs/empty_oas.json /specs/$NEW_DIR/$p
+                    openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/oas_diff/$p.html" /specs/action_config/empty_oas.json /specs/$NEW_DIR/$p
                 EXIT_CODE=$?
                 STATUS=$((STATUS + EXIT_CODE))
             fi
