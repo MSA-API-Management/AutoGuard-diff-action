@@ -25,7 +25,10 @@ runs:
         
         COMMON_FILES=$(comm -12 <(echo "$OLD_FILES") <(echo "$NEW_FILES"))
         OTHER_FILES=$(comm -3 <(echo "$OLD_FILES") <(echo "$NEW_FILES"))
-        
+
+        echo "$COMMON_FILES"
+        echo "-------------"
+        echo "$OTHER_FILES"
         
         STATUS=0
         
@@ -35,8 +38,11 @@ runs:
         for p in ${COMMON_FILES[@]}; do
             docker run --rm -t \
                 -v $(pwd):/specs \
-                openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/oas_diff/$p.html" /specs/$OLD_DIR/$p /specs/$NEW_DIR/$p > /dev/null
+                openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/oas_diff/$p.html" /specs/$OLD_DIR/$p /specs/$NEW_DIR/$p
             EXIT_CODE=$?
+            if [ $EXIT_CODE -eq 1 ]; then
+              echo "::error::Breaking changes detected in profile $p"
+            fi
             STATUS=$((STATUS + EXIT_CODE))
         done
         
@@ -45,15 +51,21 @@ runs:
                 echo "Analyzing deleted configurations"
                 docker run --rm -t \
                     -v $(pwd):/specs \
-                    openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/oas_diff/$p.html" /specs/$OLD_DIR/$p /specs/empty.json > /dev/null
+                    openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/oas_diff/$p.html" /specs/$OLD_DIR/$p /specs/empty.json
                 EXIT_CODE=$?
+                if [ $EXIT_CODE -eq 1 ]; then
+                  echo "::error::Breaking changes detected in profile $p"
+                fi
                 STATUS=$((STATUS + EXIT_CODE))
             else
                 echo "Analyzing added configurations"
                 docker run --rm -t \
                     -v $(pwd):/specs \
-                    openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/oas_diff/$p.html" /specs/empty.json /specs/$NEW_DIR/$p > /dev/null
+                    openapitools/openapi-diff:latest --fail-on-incompatible --html "/specs/oas_diff/$p.html" /specs/empty.json /specs/$NEW_DIR/$p
                 EXIT_CODE=$?
+                if [ $EXIT_CODE -eq 1 ]; then
+                  echo "::error::Breaking changes detected in profile $p"
+                fi
                 STATUS=$((STATUS + EXIT_CODE))
             fi
         done
