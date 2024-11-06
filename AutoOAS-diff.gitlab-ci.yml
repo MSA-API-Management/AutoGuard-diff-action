@@ -1,0 +1,63 @@
+spec:
+  inputs:
+    old_dir: 
+        default: 'autooas-$CI_MERGE_REQUEST_TARGET_BRANCH_NAME'
+    new_dir: 
+        default: 'autooas-$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME'
+---
+
+oas-diff:
+  stage: oas-diff
+  image:
+    name: openapitools/openapi-diff
+    entrypoint: [""]
+  variables:
+    OLD_DIR: $[[inputs.old_dir]]
+    NEW_DIR: $[[inputs.new_dir]]
+  artifacts:
+    when: always
+    paths:
+      - "oas_diff/*"
+  script: |
+    set +e
+    EMPTY_OAS='{  "openapi" : "3.0.1",  "info" : {    "title" : "",    "description" : "Spring Profile: ???",    "version" : ""  },  "paths" : {  },  "components" : {    "schemas" : {    }  }}'
+    
+    echo $EMPTY_OAS > empty.json
+    
+    echo $(find "$OLD_DIR" -type f | sed "s|$OLD_DIR/||" | sort) > old_files
+    echo $(find "$NEW_DIR" -type f | sed "s|$NEW_DIR/||" | sort) > new_files
+    
+    COMMON_FILES=$(comm -12 old_files new_files)
+    OTHER_FILES=$(comm -3 old_files new_files)
+    
+    STATUS=0
+    
+    mkdir oas_diff
+    
+    for p in $COMMON_FILES; do
+      echo "Analyzing existing configuration $p"
+      java -jar /app/openapi-diff.jar --fail-on-incompatible --html "oas_diff/$p.html" $OLD_DIR/$p $NEW_DIR/$p > /dev/null
+      EXIT_CODE=$?
+      STATUS=$((STATUS + EXIT_CODE))
+    done
+
+    for p in $OTHER_FILES; do
+      if [ -f "$OLD_DIR/$p" ]; then
+        echo "Analyzing deleted configuration $p"
+        java -jar /app/openapi-diff.jar --fail-on-incompatible --html "oas_diff/$p.html" $OLD_DIR/$p empty.json > /dev/null
+        EXIT_CODE=$?
+        STATUS=$((STATUS + EXIT_CODE))
+      else
+        echo "Analyzing added configuration $p"
+        java -jar /app/openapi-diff.jar --fail-on-incompatible --html "oas_diff/$p.html" empty.json $NEW_DIR/$p > /dev/null
+        EXIT_CODE=$?
+        STATUS=$((STATUS + EXIT_CODE))
+      fi
+    done
+    
+    set -e
+
+    if [ $STATUS -gt 0 ]; then 
+      echo -e "\e[31mBreaking changes detected"
+      exit 1
+    fi
