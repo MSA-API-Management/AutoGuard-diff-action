@@ -1,4 +1,4 @@
-name: 'AutoOAS diff'
+name: 'AutoGuard-diff Action'
 description: 'Runs OpenAPI-diff on multiple profile specifications'
 inputs:
   profiles:
