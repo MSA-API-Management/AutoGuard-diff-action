@@ -5,6 +5,6 @@ The action finds the differences for all profiles using the OpenAPI-diff tool. T
 ```yaml
 - uses: MSA-API-Management/AutoGuard-diff-action@v1
   with:
-    old_dir: '<path_to_old_specifications>'
-    new_dir: '<path_to_new_specifications>'
+    old_dir: '<path_to_old_specifications>' # required
+    new_dir: '<path_to_new_specifications>' # required
 ```
