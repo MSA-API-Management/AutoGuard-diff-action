@@ -1,13 +1,13 @@
 spec:
   inputs:
     old_dir: 
-        default: 'autooas-$CI_MERGE_REQUEST_TARGET_BRANCH_NAME'
+        default: 'openapi-$CI_MERGE_REQUEST_TARGET_BRANCH_NAME'
     new_dir: 
-        default: 'autooas-$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME'
+        default: 'openapi-$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME'
 ---
 
-oas-diff:
-  stage: oas-diff
+autoguard-diff:
+  stage: autoguard-diff
   image:
     name: openapitools/openapi-diff
     entrypoint: [""]
